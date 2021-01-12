@@ -1,4 +1,18 @@
-const mix = require('laravel-mix');
+const mix  = require('laravel-mix');
+const fs   = require('fs');
+
+const getFiles = function (dir) {
+   // get all 'files' in this directory
+   // filter directories
+   return fs.readdirSync(dir).filter(file => {
+      if (file != 'bootstrap.js') {
+        return fs.statSync(`${dir}/${file}`).isFile();
+      }
+   });
+};
+
+const resourcesJsPath  = 'resources/js/';
+const resourcesCssPath = 'resources/sass/';
 
 /*
  |--------------------------------------------------------------------------
@@ -10,6 +24,12 @@ const mix = require('laravel-mix');
  | file for the application as well as bundling up all the JS files.
  |
  */
-
-mix.js('resources/js/app.js', 'public/js')
-    .sass('resources/sass/app.scss', 'public/css');
+getFiles(resourcesJsPath).forEach(function (filepath) {
+   mix.js(resourcesJsPath + filepath, 'public/js');
+});
+getFiles(resourcesCssPath).forEach(function (filepath) {
+   mix.sass(resourcesCssPath + filepath, 'public/css');
+});
+mix.options({
+   processCssUrls: false
+}).version();
